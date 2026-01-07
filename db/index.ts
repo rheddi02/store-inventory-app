@@ -282,3 +282,18 @@ export const getStockHistory = async (productId: number) => {
     [productId]
   );
 };
+
+export const deleteProduct = async (productId: number) => {
+  const db = await getDB();
+
+  await db.execAsync('BEGIN;');
+  try {
+    await db.runAsync(`DELETE FROM stock_movements WHERE productId = ?;`, [productId]);
+    await db.runAsync(`DELETE FROM products WHERE id = ?;`, [productId]);
+
+    await db.execAsync('COMMIT;');
+  } catch (e) {
+    await db.execAsync('ROLLBACK;');
+    throw e;
+  }
+};

@@ -1,6 +1,5 @@
-import MilkCategory from "@/components/categories/milk";
-import SyrupCategory from "@/components/categories/syrup";
 import { FloatingButton } from "@/components/floating-button";
+import ProductList from "@/components/ProductList";
 import { ProductModal } from "@/components/ProductModal";
 import { CategoryTabs } from "@/components/tabs/categoryTabs";
 import { ThemedView } from "@/components/themed-view";
@@ -40,8 +39,7 @@ export default function HomeScreen() {
 
       {/* Content */}
       <ThemedView style={styles.content}>
-        {activeCategory === 1 && (
-          <SyrupCategory
+          <ProductList
             {...{
               categoryId: activeCategory,
               setModalVisible,
@@ -49,8 +47,6 @@ export default function HomeScreen() {
               reloadTrigger,
             }}
           />
-        )}
-        {activeCategory === 2 && <MilkCategory />}
       </ThemedView>
       {/* Modal */}
       <ProductModal

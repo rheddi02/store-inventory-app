@@ -40,10 +40,10 @@ export function ProductModal({
       setCategoryId(product.categoryId);
     } else {
       setName("");
-      setUnit("");
+      setUnit("L");
       setPrice("");
       setStock("");
-      setCategoryId(null);
+      setCategoryId(activeCategory ?? null);
     }
   }, [product, visible]);
 
@@ -107,9 +107,9 @@ export function ProductModal({
           /> */}
           <ThemedSelect
             placeholder="Select Unit"
-            selectedValue={'L'}
+            selectedValue={unit}
             onValueChange={setUnit}
-            items={["ml", "L", "oz", "g"].map((unit) => ({
+            items={["ml", "L", "oz", "g", "pc"].map((unit) => ({
               label: unit,
               value: unit,
             }))}
