@@ -97,7 +97,7 @@ export const addProduct = async (
 ) => {
   const db = await getDB();
 
-  await db.execAsync('BEGIN TRANSACTION;');
+  await db.execAsync("BEGIN TRANSACTION;");
 
   try {
     const result = await db.runAsync(
@@ -119,26 +119,47 @@ export const addProduct = async (
       `,
       [
         productId,
-        stock,      // change
-        0,          // previousStock
-        stock,      // newStock
-        'restock',  // reason
+        stock, // change
+        0, // previousStock
+        stock, // newStock
+        "restock", // reason
         new Date().toISOString(),
       ]
     );
 
-    await db.execAsync('COMMIT;');
+    await db.execAsync("COMMIT;");
   } catch (e) {
-    await db.execAsync('ROLLBACK;');
+    await db.execAsync("ROLLBACK;");
     throw e;
   }
 };
 
+export const getProductById = async (id: number) => {
+  const db = await getDB();
+
+  const result = await db.getFirstAsync<{
+    id: number;
+    name: string;
+    unit: string;
+    unitPrice: number;
+    stock: number;
+    categoryId: number;
+  }>(
+    `
+    SELECT *
+    FROM products
+    WHERE id = ?;
+    `,
+    [id]
+  );
+
+  return result ?? null;
+};
 
 /**
  * Get products
  */
-export const getProducts = async (categoryId?: number) => {
+export const getProducts = async (categoryId: number) => {
   const database = await getDB();
 
   if (categoryId) {
@@ -187,30 +208,43 @@ export const updateProduct = async (
 export const updateProductStock = async (
   productId: number,
   newStock: number,
-  reason: 'sale' | 'restock' | 'adjustment'
+  reason: "sale" | "restock" | "adjustment"
 ) => {
   const db = await getDB();
 
   // Get current stock
-  const result = await db.getFirstAsync<{
-    stock: number;
+  // const result = await db.getFirstAsync<{
+  //   stock: number;
+  // }>(
+  //   `SELECT stock FROM stock_movements WHERE productId = ?;`,
+  //   [productId]
+  // );
+  // if (!result) return;
+
+  const lastMovement = await db.getFirstAsync<{
+    newStock: number;
   }>(
-    `SELECT stock FROM products WHERE id = ?;`,
+    `
+  SELECT newStock
+  FROM stock_movements
+  WHERE productId = ?
+  ORDER BY createdAt DESC, id DESC
+  LIMIT 1;
+`,
     [productId]
   );
 
-  if (!result) return;
+  const previousStock = lastMovement?.newStock ?? 0;
 
-  const previousStock = result.stock;
   const change = newStock - previousStock;
 
-  await db.execAsync('BEGIN TRANSACTION;');
+  await db.execAsync("BEGIN TRANSACTION;");
 
   try {
-    await db.runAsync(
-      `UPDATE products SET stock = ? WHERE id = ?;`,
-      [newStock, productId]
-    );
+    await db.runAsync(`UPDATE products SET stock = ? WHERE id = ?;`, [
+      newStock,
+      productId,
+    ]);
 
     await db.runAsync(
       `
@@ -228,9 +262,9 @@ export const updateProductStock = async (
       ]
     );
 
-    await db.execAsync('COMMIT;');
+    await db.execAsync("COMMIT;");
   } catch (e) {
-    await db.execAsync('ROLLBACK;');
+    await db.execAsync("ROLLBACK;");
     throw e;
   }
 };

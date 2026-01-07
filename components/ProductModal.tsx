@@ -12,6 +12,7 @@ type Props = {
   visible: boolean;
   onClose: () => void;
   categories: any[];
+  activeCategory: number
   product?: any;
   onSaved: () => void;
 };
@@ -20,6 +21,7 @@ export function ProductModal({
   visible,
   onClose,
   categories,
+  activeCategory,
   product,
   onSaved,
 }: Props) {
@@ -71,6 +73,12 @@ export function ProductModal({
     onSaved();
     onClose();
   };
+  
+  useEffect(() => {
+  if (visible) {
+    setCategoryId(product?.categoryId ?? activeCategory ?? null);
+  }
+}, [visible, product, activeCategory]);
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
@@ -99,7 +107,7 @@ export function ProductModal({
           /> */}
           <ThemedSelect
             placeholder="Select Unit"
-            selectedValue={null}
+            selectedValue={'L'}
             onValueChange={setUnit}
             items={["ml", "L", "oz", "g"].map((unit) => ({
               label: unit,

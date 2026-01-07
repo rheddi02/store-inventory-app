@@ -6,6 +6,7 @@ import {
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
+import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useEffect } from "react";
@@ -24,6 +25,7 @@ export default function RootLayout() {
   }, []);
 
   return (
+    <ActionSheetProvider>
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -34,5 +36,6 @@ export default function RootLayout() {
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
+    </ActionSheetProvider>
   );
 }

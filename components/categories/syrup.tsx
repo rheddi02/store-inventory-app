@@ -2,15 +2,16 @@ import { ThemedView } from "@/components/themed-view";
 import ProductList from "../ProductList";
 
 type Props = {
-  data: any[];
+  reloadTrigger: number
+  categoryId: number
   setSelectedProduct: (product: any) => void;
   setModalVisible: (visible: boolean) => void;
 };
-export default function SyrupCategory({data, setSelectedProduct,setModalVisible}: Props) {
+export default function SyrupCategory({ reloadTrigger, categoryId, setSelectedProduct, setModalVisible }: Props) {
 
   return (
     <ThemedView>
-      <ProductList {...{data, setSelectedProduct, setModalVisible}} />
+      <ProductList {...{ reloadTrigger, categoryId, setSelectedProduct, setModalVisible }} />
     </ThemedView>
   );
 }

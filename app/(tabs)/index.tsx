@@ -1,31 +1,27 @@
 import MilkCategory from "@/components/categories/milk";
 import SyrupCategory from "@/components/categories/syrup";
+import { FloatingButton } from "@/components/floating-button";
 import { ProductModal } from "@/components/ProductModal";
 import { CategoryTabs } from "@/components/tabs/categoryTabs";
-import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { getCategories, getProducts } from "@/db";
+import { getCategories } from "@/db";
 import { useEffect, useState } from "react";
-import { Pressable, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 
 export default function HomeScreen() {
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
-  const [products, setProducts] = useState<any[]>([]);
   const [activeCategory, setActiveCategory] = useState<number>(1);
+  const [reloadTrigger, setReloadTrigger] = useState<number>(0);
   const loadCategories = async () => {
     const data = await getCategories();
     setCategories(data);
   };
-  const loadData = async (categoryId?: number | null) => {
-    const products = await getProducts(categoryId || activeCategory);
-    setProducts(products);
-  };
+
   useEffect(() => {
     (async () => {
       await loadCategories();
-      await loadData();
     })();
   }, []);
 
@@ -38,7 +34,6 @@ export default function HomeScreen() {
           activeId={activeCategory}
           onSelect={async (id) => {
             setActiveCategory(id);
-            await loadData(id);
           }}
         />
       </ThemedView>
@@ -47,7 +42,12 @@ export default function HomeScreen() {
       <ThemedView style={styles.content}>
         {activeCategory === 1 && (
           <SyrupCategory
-            {...{ data: products, setModalVisible, setSelectedProduct }}
+            {...{
+              categoryId: activeCategory,
+              setModalVisible,
+              setSelectedProduct,
+              reloadTrigger,
+            }}
           />
         )}
         {activeCategory === 2 && <MilkCategory />}
@@ -57,17 +57,11 @@ export default function HomeScreen() {
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         categories={categories}
+        activeCategory={activeCategory}
         product={selectedProduct}
-        onSaved={() => loadData(activeCategory)}
+        onSaved={() => setReloadTrigger((prev) => prev + 1)}
       />
-      <Pressable
-        onPress={() => {
-          setSelectedProduct(null);
-          setModalVisible(true);
-        }}
-        >
-          <ThemedText>➕ Add</ThemedText>
-      </Pressable>
+      <FloatingButton {...{ setSelectedProduct, setModalVisible }} />
     </ThemedView>
   );
 }
@@ -76,7 +70,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    paddingTop: 50,
   },
   tabs: {
     flexDirection: "row",
