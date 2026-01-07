@@ -1,4 +1,4 @@
-import * as SQLite from 'expo-sqlite';
+import * as SQLite from "expo-sqlite";
 
 let db: SQLite.SQLiteDatabase | null = null;
 
@@ -7,7 +7,7 @@ let db: SQLite.SQLiteDatabase | null = null;
  */
 export const getDB = async () => {
   if (!db) {
-    db = await SQLite.openDatabaseAsync('inventory.db');
+    db = await SQLite.openDatabaseAsync("inventory.db");
   }
   return db;
 };
@@ -35,6 +35,18 @@ export const initDB = async () => {
       categoryId INTEGER NOT NULL,
       FOREIGN KEY (categoryId) REFERENCES categories(id)
     );
+
+    CREATE TABLE IF NOT EXISTS stock_movements (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      productId INTEGER NOT NULL,
+      change REAL NOT NULL,
+      previousStock REAL NOT NULL,
+      newStock REAL NOT NULL,
+      reason TEXT NOT NULL,
+      createdAt TEXT NOT NULL,
+      FOREIGN KEY (productId) REFERENCES products(id)
+    );
+
   `);
 };
 
@@ -45,12 +57,12 @@ export const seedCategories = async () => {
   const database = await getDB();
 
   const categories = [
-    'Syrup',
-    'Milk',
-    'Disposable Cups',
-    'Straw',
-    'Soda',
-    'Powder',
+    "Syrup",
+    "Milk",
+    "Disposable Cups",
+    "Straw",
+    "Soda",
+    "Powder",
   ];
 
   for (const name of categories) {
@@ -68,7 +80,8 @@ export const getCategories = async () => {
   const database = await getDB();
 
   return await database.getAllAsync<{ id: number; name: string }>(
-    `SELECT * FROM categories ORDER BY name ASC;`
+    `SELECT * FROM categories;`
+    // `SELECT * FROM categories ORDER BY name ASC;`
   );
 };
 
@@ -82,16 +95,45 @@ export const addProduct = async (
   stock: number,
   categoryId: number
 ) => {
-  const database = await getDB();
+  const db = await getDB();
 
-  await database.runAsync(
-    `
-    INSERT INTO products (name, unit, unitPrice, stock, categoryId)
-    VALUES (?, ?, ?, ?, ?);
-    `,
-    [name, unitPrice, stock, categoryId]
-  );
+  await db.execAsync('BEGIN TRANSACTION;');
+
+  try {
+    const result = await db.runAsync(
+      `
+      INSERT INTO products (name, unit, unitPrice, stock, categoryId)
+      VALUES (?, ?, ?, ?, ?);
+      `,
+      [name, unit, unitPrice, stock, categoryId]
+    );
+
+    const productId = result.lastInsertRowId;
+
+    // Log initial stock
+    await db.runAsync(
+      `
+      INSERT INTO stock_movements
+        (productId, change, previousStock, newStock, reason, createdAt)
+      VALUES (?, ?, ?, ?, ?, ?);
+      `,
+      [
+        productId,
+        stock,      // change
+        0,          // previousStock
+        stock,      // newStock
+        'restock',  // reason
+        new Date().toISOString(),
+      ]
+    );
+
+    await db.execAsync('COMMIT;');
+  } catch (e) {
+    await db.execAsync('ROLLBACK;');
+    throw e;
+  }
 };
+
 
 /**
  * Get products
@@ -119,5 +161,90 @@ export const getProducts = async (categoryId?: number) => {
     JOIN categories c ON p.categoryId = c.id
     ORDER BY p.name ASC;
     `
+  );
+};
+
+export const updateProduct = async (
+  id: number,
+  name: string,
+  unit: string,
+  unitPrice: number,
+  stock: number,
+  categoryId: number
+) => {
+  const database = await getDB();
+
+  await database.runAsync(
+    `
+    UPDATE products
+    SET name = ?, unit = ?, unitPrice = ?, stock = ?, categoryId = ?
+    WHERE id = ?;
+    `,
+    [name, unit, unitPrice, stock, categoryId, id]
+  );
+};
+
+export const updateProductStock = async (
+  productId: number,
+  newStock: number,
+  reason: 'sale' | 'restock' | 'adjustment'
+) => {
+  const db = await getDB();
+
+  // Get current stock
+  const result = await db.getFirstAsync<{
+    stock: number;
+  }>(
+    `SELECT stock FROM products WHERE id = ?;`,
+    [productId]
+  );
+
+  if (!result) return;
+
+  const previousStock = result.stock;
+  const change = newStock - previousStock;
+
+  await db.execAsync('BEGIN TRANSACTION;');
+
+  try {
+    await db.runAsync(
+      `UPDATE products SET stock = ? WHERE id = ?;`,
+      [newStock, productId]
+    );
+
+    await db.runAsync(
+      `
+      INSERT INTO stock_movements
+        (productId, change, previousStock, newStock, reason, createdAt)
+      VALUES (?, ?, ?, ?, ?, ?);
+      `,
+      [
+        productId,
+        change,
+        previousStock,
+        newStock,
+        reason,
+        new Date().toISOString(),
+      ]
+    );
+
+    await db.execAsync('COMMIT;');
+  } catch (e) {
+    await db.execAsync('ROLLBACK;');
+    throw e;
+  }
+};
+
+export const getStockHistory = async (productId: number) => {
+  const db = await getDB();
+
+  return await db.getAllAsync(
+    `
+    SELECT *
+    FROM stock_movements
+    WHERE productId = ?
+    ORDER BY createdAt DESC;
+    `,
+    [productId]
   );
 };

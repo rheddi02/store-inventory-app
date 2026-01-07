@@ -1,7 +1,8 @@
-import { useCallback, useState } from 'react';
-import { FlatList, RefreshControl } from 'react-native';
-import { ThemedText } from './themed-text';
-import { ThemedView } from './themed-view';
+import { useCallback, useState } from "react";
+import { FlatList, RefreshControl } from "react-native";
+import { ProductRow } from "./ProductRow";
+import { ThemedText } from "./themed-text";
+import { ThemedView } from "./themed-view";
 
 type Product = {
   name: string;
@@ -9,7 +10,13 @@ type Product = {
   stock: number;
 };
 
-export default function ProductList({ data }: { data: Product[] }) {
+type Props = {
+  data: Product[];
+  setSelectedProduct: (product: any) => void;
+  setModalVisible: (visible: boolean) => void;
+};
+
+export default function ProductList({ data, setSelectedProduct, setModalVisible }: Props) {
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = useCallback(() => {
@@ -26,19 +33,26 @@ export default function ProductList({ data }: { data: Product[] }) {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
       ListHeaderComponent={
-        <ThemedView style={{ flexDirection: 'row', padding: 12 }}>
-          <ThemedText style={{ flex: 1.5, fontWeight: '600' }}>Name</ThemedText>
-          <ThemedText style={{ flex: 1, fontWeight: '600' }}>Unit Price</ThemedText>
-          <ThemedText style={{ flex: 1, fontWeight: '600' }}>On Hand</ThemedText>
+        <ThemedView
+          style={{
+            flexDirection: "row",
+            paddingVertical: 8,
+            borderBottomWidth: 1,
+          }}
+        >
+          <ThemedText style={{ flex: 2, fontWeight: "600" }}>Name</ThemedText>
+          <ThemedText style={{ flex: 1, textAlign: "center" }}>
+            Price
+          </ThemedText>
+          <ThemedText style={{ flex: 1, textAlign: "center" }}>
+            Stock
+          </ThemedText>
         </ThemedView>
       }
-      renderItem={({ item }) => (
-        <ThemedView style={{ flexDirection: 'row', padding: 12 }}>
-          <ThemedText style={{ flex: 1.5 }}>{item.name}</ThemedText>
-          <ThemedText style={{ flex: 1 }}>₱{item.unitPrice}</ThemedText>
-          <ThemedText style={{ flex: 1 }}>{item.stock}</ThemedText>
-        </ThemedView>
-      )}
+      renderItem={({ item }) => <ProductRow item={item} onPress={() => {
+      setSelectedProduct(item);
+      setModalVisible(true);
+    }}/>}
     />
   );
 }
