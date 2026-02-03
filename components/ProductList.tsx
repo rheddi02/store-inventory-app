@@ -28,11 +28,11 @@ export default function ProductList({
   };
   const onEdit = (product: any) => {
     setSelectedProduct(product);
-    setModalVisible(true);
+    if (product) setModalVisible(true);
   };
   const onView = (product: any) => {
     setSelectedProduct(product);
-    router.push(`/products/${product.id}`);
+    if (product) router.push(`/products/${product.id}`);
   };
   const onDelete = (product: any) => {
     Alert.alert(
@@ -83,7 +83,7 @@ export default function ProductList({
   return (
     <Animated.View style={{ transform: [{ translateX: slideAnim }] }}>
       <FlatList
-        data={products}
+        data={products ?? []}
         keyExtractor={(item, index) => index.toString()}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />

@@ -9,8 +9,8 @@ type Category = {
 
 type Props = {
   categories: Category[];
-  activeId: number | null;
-  onSelect: (id: number | null) => void;
+  activeId: number;
+  onSelect: (id: number) => void;
 };
 
 export function CategoryTabs({ categories, activeId, onSelect }: Props) {
@@ -20,13 +20,13 @@ export function CategoryTabs({ categories, activeId, onSelect }: Props) {
       showsHorizontalScrollIndicator={false}
       style={{ marginVertical: 10 }}
     >
-      <Pressable onPress={() => onSelect(null)}>
+      <Pressable onPress={() => onSelect(0)}>
         <ThemedView
           style={{
             padding: 10,
             marginRight: 8,
             borderRadius: 8,
-            opacity: activeId === null ? 1 : 0.5,
+            opacity: activeId === 0 ? 1 : 0.5,
           }}
         >
           <ThemedText>All</ThemedText>

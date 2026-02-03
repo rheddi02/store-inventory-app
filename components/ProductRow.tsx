@@ -1,16 +1,16 @@
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme.web";
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import { Pressable } from "react-native";
 import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
-import { useColorScheme } from "@/hooks/use-color-scheme.web";
-import { Colors } from '@/constants/theme';
 
 export function ProductRow({
   product,
   onEdit,
   onDelete,
   onView,
-  onLongPress
+  onLongPress,
 }: {
   product: any;
   onEdit: (product: any) => void;
@@ -19,7 +19,7 @@ export function ProductRow({
   onLongPress: (product: any) => void;
 }) {
   const { showActionSheetWithOptions } = useActionSheet();
-  const theme = useColorScheme() ?? 'light';
+  const theme = useColorScheme() ?? "light";
 
   const onPress = () => {
     const options = ["View", "Edit", "Delete", "Cancel"];
@@ -36,12 +36,12 @@ export function ProductRow({
         if (index === 0) onView(product);
         if (index === 1) onEdit(product);
         if (index === 2) onDelete(product);
-      }
+      },
     );
   };
 
   return (
-    <Pressable onPress={onPress} onLongPress={onLongPress}>
+    <Pressable onPress={onLongPress} onLongPress={onPress}>
       <ThemedView
         style={{
           flexDirection: "row",

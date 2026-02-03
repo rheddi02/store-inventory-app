@@ -4,10 +4,10 @@ import { Modal } from "react-native";
 import { addProduct, updateProduct, updateProductStock } from "@/db";
 import { ThemedButton } from "./themed-button";
 import { ThemedInput } from "./themed-input";
-import { ThemedQuantitySelect } from "./themed-quantity-select";
 import { ThemedSelect } from "./themed-select";
 import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
+import { UnitSelector } from "./unit-selector";
 
 type Props = {
   visible: boolean;
@@ -30,6 +30,7 @@ export function ProductModal({
   const [unit, setUnit] = useState("");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
+  const [addStock, setAddStock] = useState("");
   const [categoryId, setCategoryId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -39,11 +40,13 @@ export function ProductModal({
       setPrice(String(product.unitPrice));
       setStock(String(product.stock));
       setCategoryId(product.categoryId);
+      setAddStock("");
     } else {
       setName("");
       setUnit("pc");
       setPrice("");
       setStock("");
+      setAddStock("");
       setCategoryId(activeCategory ?? null);
     }
   }, [product, visible]);
@@ -52,19 +55,20 @@ export function ProductModal({
     if (!categoryId) return;
 
     if (product) {
+      const totalStock = Number(stock) + (addStock ? Number(addStock) : 0);
       // Update product details
       await updateProduct(
         product.id,
         name,
         unit,
         Number(price),
-        Number(stock),
+        totalStock,
         categoryId,
       );
 
       // Track stock change if modified
-      if (Number(stock) !== product.stock) {
-        await updateProductStock(product.id, Number(stock), "adjustment");
+      if (totalStock !== product.stock) {
+        await updateProductStock(product.id, totalStock, "adjustment");
       }
     } else {
       // NEW PRODUCT
@@ -108,15 +112,15 @@ export function ProductModal({
             Name
           </ThemedText>
           <ThemedInput placeholder="Name" value={name} onChangeText={setName} />
-          {/* <ThemedInput
-            placeholder="Unit (ml, L, oz, g)"
-            value={unit}
-            onChangeText={setUnit}
-          /> */}
           <ThemedText style={{ marginBottom: 2, marginTop: 10 }}>
             Unit
           </ThemedText>
-          <ThemedSelect
+          <UnitSelector
+            units={["pc", "ml", "L", "oz", "g"]}
+            selectedUnit={unit}
+            onSelect={setUnit}
+          />
+          {/* <ThemedSelect
             placeholder="Select Unit"
             selectedValue={unit}
             onValueChange={setUnit}
@@ -124,7 +128,7 @@ export function ProductModal({
               label: unit,
               value: unit,
             }))}
-          />
+          /> */}
           <ThemedText style={{ marginBottom: 2, marginTop: 10 }}>
             Price
           </ThemedText>
@@ -138,13 +142,25 @@ export function ProductModal({
             {product ? "Additional Stock" : "Quantity"}
           </ThemedText>
           {product ? (
-            <ThemedQuantitySelect value={stock} onChange={setStock} />
+            <ThemedInput
+              placeholder="Additional Stock"
+              keyboardType="numeric"
+              value={addStock}
+              onChangeText={setAddStock}
+            />
           ) : (
             <ThemedInput
               placeholder="Stock"
               keyboardType="numeric"
               value={stock}
               onChangeText={setStock}
+            />
+          )}
+          {product && (
+            <UnitSelector
+              units={Array.from({ length: 11 }, (_, i) => String(i - 5))}
+              selectedUnit={addStock}
+              onSelect={setAddStock}
             />
           )}
 
@@ -158,7 +174,10 @@ export function ProductModal({
               value: c.id,
             }))}
           />
-          <ThemedButton title="Save Product" onPress={save} />
+          <ThemedButton
+            title={product ? "Update Product" : "Add Product"}
+            onPress={save}
+          />
 
           <ThemedButton title="Cancel" variant="outline" onPress={onClose} />
         </ThemedView>

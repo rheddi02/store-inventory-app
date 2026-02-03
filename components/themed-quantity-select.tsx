@@ -6,8 +6,8 @@ import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
 
 type Props = {
-  value: string;
-  onChange: (value: string) => void;
+  value: number;
+  onChange: (value: number) => void;
 };
 
 export function ThemedQuantitySelect({ value, onChange }: Props) {
@@ -58,7 +58,7 @@ export function ThemedQuantitySelect({ value, onChange }: Props) {
                 renderItem={({ item }) => (
                   <Pressable
                     onPress={() => {
-                      onChange(item.toString());
+                      onChange(item);
                       setVisible(false);
                     }}
                   >
@@ -72,7 +72,7 @@ export function ThemedQuantitySelect({ value, onChange }: Props) {
                         style={{
                           fontSize: 18,
                           fontWeight:
-                            item.toString() === value ? "bold" : "normal",
+                            item === value ? "bold" : "normal",
                         }}
                       >
                         {item}

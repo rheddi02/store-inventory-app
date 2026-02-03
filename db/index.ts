@@ -56,19 +56,12 @@ export const initDB = async () => {
 export const seedCategories = async () => {
   const database = await getDB();
 
-  const categories = [
-    "Syrup",
-    "Milk",
-    "Disposable Cups",
-    "Straw",
-    "Soda",
-    "Powder",
-  ];
+  const categories = ["Syrup", "Milk", "Disposable", "Straw", "Soda", "Powder"];
 
   for (const name of categories) {
     await database.runAsync(
       `INSERT OR IGNORE INTO categories (name) VALUES (?);`,
-      [name]
+      [name],
     );
   }
 };
@@ -80,7 +73,7 @@ export const getCategories = async () => {
   const database = await getDB();
 
   return await database.getAllAsync<{ id: number; name: string }>(
-    `SELECT * FROM categories;`
+    `SELECT * FROM categories;`,
     // `SELECT * FROM categories ORDER BY name ASC;`
   );
 };
@@ -93,43 +86,28 @@ export const addProduct = async (
   unit: string,
   unitPrice: number,
   stock: number,
-  categoryId: number
+  categoryId: number,
 ) => {
   const db = await getDB();
-
-  await db.execAsync("BEGIN TRANSACTION;");
-
   try {
-    const result = await db.runAsync(
-      `
-      INSERT INTO products (name, unit, unitPrice, stock, categoryId)
-      VALUES (?, ?, ?, ?, ?);
-      `,
-      [name, unit, unitPrice, stock, categoryId]
-    );
-
-    const productId = result.lastInsertRowId;
-
-    // Log initial stock
     await db.runAsync(
-      `
-      INSERT INTO stock_movements
-        (productId, change, previousStock, newStock, reason, createdAt)
-      VALUES (?, ?, ?, ?, ?, ?);
-      `,
-      [
-        productId,
-        stock, // change
-        0, // previousStock
-        stock, // newStock
-        "restock", // reason
-        new Date().toISOString(),
-      ]
+      `INSERT INTO products (name, unit, unitPrice, stock, categoryId)
+     VALUES (?, ?, ?, ?, ?);`,
+      [name, unit, unitPrice, stock, categoryId],
     );
 
-    await db.execAsync("COMMIT;");
+    const productId = (await db.getFirstAsync<{ id: number }>(
+      `SELECT last_insert_rowid() as id;`,
+    ))!.id;
+
+    await db.runAsync(
+      `INSERT INTO stock_movements
+     (productId, change, previousStock, newStock, reason, createdAt)
+     VALUES (?, ?, ?, ?, ?, ?);`,
+      [productId, stock, 0, stock, "restock", new Date().toISOString()],
+    );
   } catch (e) {
-    await db.execAsync("ROLLBACK;");
+    console.error("Add product failed", e);
     throw e;
   }
 };
@@ -137,23 +115,30 @@ export const addProduct = async (
 export const getProductById = async (id: number) => {
   const db = await getDB();
 
-  const result = await db.getFirstAsync<{
-    id: number;
-    name: string;
-    unit: string;
-    unitPrice: number;
-    stock: number;
-    categoryId: number;
-  }>(
-    `
-    SELECT *
-    FROM products
-    WHERE id = ?;
+  try {
+    const result = await db.getFirstAsync<{
+      id: number;
+      name: string;
+      unit: string;
+      unitPrice: number;
+      stock: number;
+      categoryId: number;
+      categoryName: string;
+    }>(
+      `
+    SELECT p.*, c.name AS categoryName
+    FROM products p
+    LEFT JOIN categories c ON p.categoryId = c.id
+    WHERE p.id = ?;
     `,
-    [id]
-  );
+      [id],
+    );
 
-  return result ?? null;
+    return result ?? null;
+  } catch (e) {
+    console.error("getProductById failed", e);
+    return null;
+  }
 };
 
 /**
@@ -171,7 +156,7 @@ export const getProducts = async (categoryId: number) => {
       WHERE categoryId = ?
       ORDER BY p.name ASC;
       `,
-      [categoryId]
+      [categoryId],
     );
   }
 
@@ -181,7 +166,7 @@ export const getProducts = async (categoryId: number) => {
     FROM products p
     JOIN categories c ON p.categoryId = c.id
     ORDER BY p.name ASC;
-    `
+    `,
   );
 };
 
@@ -191,7 +176,7 @@ export const updateProduct = async (
   unit: string,
   unitPrice: number,
   stock: number,
-  categoryId: number
+  categoryId: number,
 ) => {
   const database = await getDB();
 
@@ -201,14 +186,14 @@ export const updateProduct = async (
     SET name = ?, unit = ?, unitPrice = ?, stock = ?, categoryId = ?
     WHERE id = ?;
     `,
-    [name, unit, unitPrice, stock, categoryId, id]
+    [name, unit, unitPrice, stock, categoryId, id],
   );
 };
 
 export const updateProductStock = async (
   productId: number,
   newStock: number,
-  reason: "sale" | "restock" | "adjustment"
+  reason: "sale" | "restock" | "adjustment",
 ) => {
   const db = await getDB();
 
@@ -231,7 +216,7 @@ export const updateProductStock = async (
   ORDER BY createdAt DESC, id DESC
   LIMIT 1;
 `,
-    [productId]
+    [productId],
   );
 
   const previousStock = lastMovement?.newStock ?? 0;
@@ -259,7 +244,7 @@ export const updateProductStock = async (
         newStock,
         reason,
         new Date().toISOString(),
-      ]
+      ],
     );
 
     await db.execAsync("COMMIT;");
@@ -279,21 +264,23 @@ export const getStockHistory = async (productId: number) => {
     WHERE productId = ?
     ORDER BY createdAt DESC;
     `,
-    [productId]
+    [productId],
   );
 };
 
 export const deleteProduct = async (productId: number) => {
   const db = await getDB();
 
-  await db.execAsync('BEGIN;');
+  await db.execAsync("BEGIN;");
   try {
-    await db.runAsync(`DELETE FROM stock_movements WHERE productId = ?;`, [productId]);
+    await db.runAsync(`DELETE FROM stock_movements WHERE productId = ?;`, [
+      productId,
+    ]);
     await db.runAsync(`DELETE FROM products WHERE id = ?;`, [productId]);
 
-    await db.execAsync('COMMIT;');
+    await db.execAsync("COMMIT;");
   } catch (e) {
-    await db.execAsync('ROLLBACK;');
+    await db.execAsync("ROLLBACK;");
     throw e;
   }
 };

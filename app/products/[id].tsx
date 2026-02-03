@@ -19,6 +19,7 @@ type Product = {
   unitPrice: number;
   stock: number;
   categoryId: number;
+  categoryName?: string;
 };
 
 export default function ProductDetails() {
@@ -51,6 +52,8 @@ export default function ProductDetails() {
     loadProduct();
   }, [productId]);
 
+  if (!product) return <ThemedText>Loading...</ThemedText>; 
+
   return (
     <>
       <Stack.Screen
@@ -65,18 +68,37 @@ export default function ProductDetails() {
           <ThemedText>Product not found</ThemedText>
         ) : (
           <>
-            <View style={{ flexDirection: "row", gap: 16, marginBottom: 24 }}>
+            <View
+              style={{
+                flexDirection: "row",
+                flexWrap: "wrap",
+                gap: 8,
+              }}
+            >
+              <ThemedView style={styles.card}>
+                <ThemedText type="description">Category</ThemedText>
+                <ThemedText type="title">{product.categoryName}</ThemedText>
+              </ThemedView>
               <ThemedView style={styles.card}>
                 <ThemedText type="description">Unit</ThemedText>
                 <ThemedText type="title">{product.unit}</ThemedText>
               </ThemedView>
-              <ThemedView style={styles.card}>
-                <ThemedText type="description">Price</ThemedText>
-                <ThemedText type="title">{product.unitPrice}</ThemedText>
-              </ThemedView>
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                flexWrap: "wrap",
+                gap: 8,
+                marginBottom: 24,
+              }}
+            >
               <ThemedView style={styles.card}>
                 <ThemedText type="description">Stock</ThemedText>
                 <ThemedText type="title">{product.stock}</ThemedText>
+              </ThemedView>
+              <ThemedView style={styles.card}>
+                <ThemedText type="description">Price</ThemedText>
+                <ThemedText type="title">{product.unitPrice}</ThemedText>
               </ThemedView>
             </View>
             <View>
@@ -110,9 +132,9 @@ export default function ProductDetails() {
                     <ThemedText style={{ flex: 1, textAlign: "center" }}>
                       New Stock
                     </ThemedText>
-                    <ThemedText style={{ flex: 1, textAlign: "center" }}>
+                    {/* <ThemedText style={{ flex: 1, textAlign: "center" }}>
                       Reason
-                    </ThemedText>
+                    </ThemedText> */}
                   </ThemedView>
                 }
                 renderItem={({ item }) => (
