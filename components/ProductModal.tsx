@@ -4,6 +4,7 @@ import { Modal } from "react-native";
 import { addProduct, updateProduct, updateProductStock } from "@/db";
 import { ThemedButton } from "./themed-button";
 import { ThemedInput } from "./themed-input";
+import { ThemedQuantitySelect } from "./themed-quantity-select";
 import { ThemedSelect } from "./themed-select";
 import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
@@ -12,7 +13,7 @@ type Props = {
   visible: boolean;
   onClose: () => void;
   categories: any[];
-  activeCategory: number
+  activeCategory: number;
   product?: any;
   onSaved: () => void;
 };
@@ -40,7 +41,7 @@ export function ProductModal({
       setCategoryId(product.categoryId);
     } else {
       setName("");
-      setUnit("L");
+      setUnit("pc");
       setPrice("");
       setStock("");
       setCategoryId(activeCategory ?? null);
@@ -58,7 +59,7 @@ export function ProductModal({
         unit,
         Number(price),
         Number(stock),
-        categoryId
+        categoryId,
       );
 
       // Track stock change if modified
@@ -73,12 +74,12 @@ export function ProductModal({
     onSaved();
     onClose();
   };
-  
+
   useEffect(() => {
-  if (visible) {
-    setCategoryId(product?.categoryId ?? activeCategory ?? null);
-  }
-}, [visible, product, activeCategory]);
+    if (visible) {
+      setCategoryId(product?.categoryId ?? activeCategory ?? null);
+    }
+  }, [visible, product, activeCategory]);
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
@@ -95,16 +96,26 @@ export function ProductModal({
             borderRadius: 12,
           }}
         >
-          <ThemedText type="title">
+          <ThemedText style={{ marginBottom: 2 }} type="title">
             {product ? "Edit Product" : "Add Product"}
           </ThemedText>
-
+          <ThemedText style={{ marginBottom: 8 }} type="description">
+            {product
+              ? "Modify the details of your product."
+              : "Enter details for your new product."}
+          </ThemedText>
+          <ThemedText style={{ marginBottom: 2, marginTop: 10 }}>
+            Name
+          </ThemedText>
           <ThemedInput placeholder="Name" value={name} onChangeText={setName} />
           {/* <ThemedInput
             placeholder="Unit (ml, L, oz, g)"
             value={unit}
             onChangeText={setUnit}
           /> */}
+          <ThemedText style={{ marginBottom: 2, marginTop: 10 }}>
+            Unit
+          </ThemedText>
           <ThemedSelect
             placeholder="Select Unit"
             selectedValue={unit}
@@ -114,18 +125,28 @@ export function ProductModal({
               value: unit,
             }))}
           />
+          <ThemedText style={{ marginBottom: 2, marginTop: 10 }}>
+            Price
+          </ThemedText>
           <ThemedInput
             placeholder="Unit Price"
             keyboardType="numeric"
             value={price}
             onChangeText={setPrice}
           />
-          <ThemedInput
-            placeholder="Stock"
-            keyboardType="numeric"
-            value={stock}
-            onChangeText={setStock}
-          />
+          <ThemedText style={{ marginBottom: 2, marginTop: 10 }}>
+            {product ? "Additional Stock" : "Quantity"}
+          </ThemedText>
+          {product ? (
+            <ThemedQuantitySelect value={stock} onChange={setStock} />
+          ) : (
+            <ThemedInput
+              placeholder="Stock"
+              keyboardType="numeric"
+              value={stock}
+              onChangeText={setStock}
+            />
+          )}
 
           <ThemedText style={{ marginTop: 10 }}>Category</ThemedText>
 

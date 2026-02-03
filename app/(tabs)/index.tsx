@@ -11,7 +11,7 @@ export default function HomeScreen() {
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
-  const [activeCategory, setActiveCategory] = useState<number>(1);
+  const [activeCategory, setActiveCategory] = useState<number>(0);
   const [reloadTrigger, setReloadTrigger] = useState<number>(0);
   const loadCategories = async () => {
     const data = await getCategories();
@@ -39,14 +39,14 @@ export default function HomeScreen() {
 
       {/* Content */}
       <ThemedView style={styles.content}>
-          <ProductList
-            {...{
-              categoryId: activeCategory,
-              setModalVisible,
-              setSelectedProduct,
-              reloadTrigger,
-            }}
-          />
+        <ProductList
+          {...{
+            categoryId: activeCategory,
+            setModalVisible,
+            setSelectedProduct,
+            reloadTrigger,
+          }}
+        />
       </ThemedView>
       {/* Modal */}
       <ProductModal

@@ -10,11 +10,13 @@ export function ProductRow({
   onEdit,
   onDelete,
   onView,
+  onLongPress
 }: {
   product: any;
   onEdit: (product: any) => void;
   onDelete: (product: any) => void;
   onView: (product: any) => void;
+  onLongPress: (product: any) => void;
 }) {
   const { showActionSheetWithOptions } = useActionSheet();
   const theme = useColorScheme() ?? 'light';
@@ -39,7 +41,7 @@ export function ProductRow({
   };
 
   return (
-    <Pressable onPress={onPress}>
+    <Pressable onPress={onPress} onLongPress={onLongPress}>
       <ThemedView
         style={{
           flexDirection: "row",

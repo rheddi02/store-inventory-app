@@ -1,3 +1,4 @@
+import { ActionSheetProvider } from "@expo/react-native-action-sheet";
 import {
   DarkTheme,
   DefaultTheme,
@@ -6,11 +7,10 @@ import {
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
-import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 
-import { useColorScheme } from "@/hooks/use-color-scheme";
-import { useEffect } from "react";
 import { initDB, seedCategories } from "@/db";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { useEffect, useState } from "react";
 
 export const unstable_settings = {
   anchor: "(tabs)",
@@ -18,24 +18,34 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    initDB();
-    seedCategories();
+    (async () => {
+      try {
+        await initDB();
+        await seedCategories();
+        setReady(true);
+      } catch (e) {
+        console.error("DB init failed", e);
+      }
+    })();
   }, []);
+
+  if (!ready) return null; // or splash screen
 
   return (
     <ActionSheetProvider>
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="modal"
-          options={{ presentation: "modal", title: "Modal" }}
-        />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="modal"
+            options={{ presentation: "modal", title: "Modal" }}
+          />
+        </Stack>
+        <StatusBar style="auto" />
+      </ThemeProvider>
     </ActionSheetProvider>
   );
 }

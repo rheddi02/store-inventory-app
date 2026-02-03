@@ -52,7 +52,7 @@ export default function ProductList({
             }
           },
         },
-      ]
+      ],
     );
   };
   const onRefresh = useCallback(async () => {
@@ -78,39 +78,40 @@ export default function ProductList({
       duration: 300,
       useNativeDriver: true,
     }).start();
-  }, [categoryId])
+  }, [categoryId]);
 
   return (
     <Animated.View style={{ transform: [{ translateX: slideAnim }] }}>
-    <FlatList
-      data={products}
-      keyExtractor={(item, index) => index.toString()}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-      ListHeaderComponent={
-        <ThemedView
-          style={{
-            flexDirection: "row",
-            paddingVertical: 8,
-            borderBottomWidth: 1,
-          }}
-        >
-          <ThemedText style={{ flex: 2, fontWeight: "600" }}>Name</ThemedText>
-          <ThemedText style={{ flex: 1, textAlign: "center" }}>
-            Stock
-          </ThemedText>
-        </ThemedView>
-      }
-      renderItem={({ item }) => (
-        <ProductRow
-          product={item}
-          onView={() => onView(item)}
-          onEdit={() => onEdit(item)}
-          onDelete={() => onDelete(item)}
-        />
-      )}
-    />
+      <FlatList
+        data={products}
+        keyExtractor={(item, index) => index.toString()}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        ListHeaderComponent={
+          <ThemedView
+            style={{
+              flexDirection: "row",
+              paddingVertical: 8,
+              borderBottomWidth: 1,
+            }}
+          >
+            <ThemedText style={{ flex: 2, fontWeight: "600" }}>Name</ThemedText>
+            <ThemedText style={{ flex: 1, textAlign: "center" }}>
+              Stock
+            </ThemedText>
+          </ThemedView>
+        }
+        renderItem={({ item }) => (
+          <ProductRow
+            product={item}
+            onView={() => onView(item)}
+            onEdit={() => onEdit(item)}
+            onDelete={() => onDelete(item)}
+            onLongPress={() => onEdit(item)}
+          />
+        )}
+      />
     </Animated.View>
   );
 }

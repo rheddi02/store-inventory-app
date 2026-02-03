@@ -1,6 +1,6 @@
-import { Pressable, ScrollView } from 'react-native';
-import { ThemedText } from '../themed-text';
-import { ThemedView } from '../themed-view';
+import { Pressable, ScrollView } from "react-native";
+import { ThemedText } from "../themed-text";
+import { ThemedView } from "../themed-view";
 
 type Category = {
   id: number;
@@ -9,8 +9,8 @@ type Category = {
 
 type Props = {
   categories: Category[];
-  activeId: number;
-  onSelect: (id: number) => void;
+  activeId: number | null;
+  onSelect: (id: number | null) => void;
 };
 
 export function CategoryTabs({ categories, activeId, onSelect }: Props) {
@@ -20,7 +20,7 @@ export function CategoryTabs({ categories, activeId, onSelect }: Props) {
       showsHorizontalScrollIndicator={false}
       style={{ marginVertical: 10 }}
     >
-      {/* <Pressable onPress={() => onSelect(null)}>
+      <Pressable onPress={() => onSelect(null)}>
         <ThemedView
           style={{
             padding: 10,
@@ -31,9 +31,9 @@ export function CategoryTabs({ categories, activeId, onSelect }: Props) {
         >
           <ThemedText>All</ThemedText>
         </ThemedView>
-      </Pressable> */}
+      </Pressable>
 
-      {categories.map(cat => (
+      {categories.map((cat) => (
         <Pressable key={cat.id} onPress={() => onSelect(cat.id)}>
           <ThemedView
             style={{
