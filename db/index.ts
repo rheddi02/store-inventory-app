@@ -1,3 +1,4 @@
+import { Product } from "@/utils/types";
 import * as SQLite from "expo-sqlite";
 
 let db: SQLite.SQLiteDatabase | null = null;
@@ -144,7 +145,7 @@ export const getProductById = async (id: number) => {
 /**
  * Get products
  */
-export const getProducts = async (categoryId: number) => {
+export const getProducts = async (categoryId: number): Promise<Product[]> => {
   const database = await getDB();
 
   if (categoryId) {
@@ -187,6 +188,20 @@ export const updateProduct = async (
     WHERE id = ?;
     `,
     [name, unit, unitPrice, stock, categoryId, id],
+  );
+};
+export const updateProductQuantity = async (
+  stock: number,
+) => {
+  const database = await getDB();
+
+  await database.runAsync(
+    `
+    UPDATE products
+    SET stock = ?
+    WHERE id = ?;
+    `,
+    [stock],
   );
 };
 

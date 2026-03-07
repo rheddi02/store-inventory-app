@@ -1,13 +1,13 @@
+import { useProduct } from "@/context/ProductContext";
 import { Pressable, View } from "react-native";
 import { ThemedText } from "./themed-text";
 
 export const FloatingButton = ({
-  setSelectedProduct,
   setModalVisible,
 }: {
-  setSelectedProduct: (product: any) => void;
   setModalVisible: (visible: boolean) => void;
 }) => {
+  const { setSelectedProduct } = useProduct();
   return (
     <Pressable
       onPress={() => {

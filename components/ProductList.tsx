@@ -1,27 +1,32 @@
+import { useProduct } from "@/context/ProductContext";
 import { deleteProduct, getProducts } from "@/db";
+import { Product } from "@/utils/types";
 import { router } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, Animated, FlatList, RefreshControl } from "react-native";
 import { ProductRow } from "./ProductRow";
 import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
+
 type Props = {
   categoryId: number;
-  reloadTrigger: number;
-  setSelectedProduct: (product: any) => void;
+  // reloadTrigger: number;
   setModalVisible: (visible: boolean) => void;
 };
 
 export default function ProductList({
   categoryId,
-  setSelectedProduct,
   setModalVisible,
-  reloadTrigger,
+  // reloadTrigger,
 }: Props) {
+  const { setSelectedProduct } = useProduct();
   const slideAnim = useRef(new Animated.Value(-300)).current; // start offscreen left
 
   const [refreshing, setRefreshing] = useState(false);
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+
+  const { reloadTrigger } = useProduct();
+
   const loadData = async () => {
     const prods = await getProducts(categoryId);
     setProducts(prods);

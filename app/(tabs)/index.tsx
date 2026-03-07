@@ -3,16 +3,18 @@ import ProductList from "@/components/ProductList";
 import { ProductModal } from "@/components/ProductModal";
 import { CategoryTabs } from "@/components/tabs/categoryTabs";
 import { ThemedView } from "@/components/themed-view";
+import { useProduct } from "@/context/ProductContext";
 import { getCategories } from "@/db";
 import { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 
 export default function HomeScreen() {
-  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const { selectedProduct } = useProduct();
   const [modalVisible, setModalVisible] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
   const [activeCategory, setActiveCategory] = useState<number>(0);
-  const [reloadTrigger, setReloadTrigger] = useState<number>(0);
+  // const [reloadTrigger, setReloadTrigger] = useState<number>(0);
+  const { reloadTrigger, setReloadTrigger } = useProduct();
   const loadCategories = async () => {
     const data = await getCategories();
     setCategories(data);
@@ -43,7 +45,6 @@ export default function HomeScreen() {
           {...{
             categoryId: activeCategory,
             setModalVisible,
-            setSelectedProduct,
             reloadTrigger,
           }}
         />
@@ -55,9 +56,9 @@ export default function HomeScreen() {
         categories={categories}
         activeCategory={activeCategory}
         product={selectedProduct}
-        onSaved={() => setReloadTrigger((prev) => prev + 1)}
+        onSaved={() => setReloadTrigger(reloadTrigger + 1)}
       />
-      <FloatingButton {...{ setSelectedProduct, setModalVisible }} />
+      <FloatingButton {...{ setModalVisible }} />
     </ThemedView>
   );
 }

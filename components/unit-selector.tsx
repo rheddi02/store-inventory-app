@@ -5,7 +5,7 @@ import { ThemedView } from "./themed-view";
 
 interface UnitSelectorProps {
   units: string[];
-  selectedUnit: string;
+  selectedUnit?: string;
   onSelect: (unit: string) => void;
 }
 

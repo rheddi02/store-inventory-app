@@ -6,11 +6,13 @@ import {
 } from "@react-navigation/native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import "react-native-reanimated";
 
+import { ProductProvider } from "@/context/ProductContext";
 import { initDB, seedCategories } from "@/db";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import * as Updates from "expo-updates";
 import { useEffect, useState } from "react";
+import { Alert } from "react-native";
 
 export const unstable_settings = {
   anchor: "(tabs)",
@@ -32,19 +34,50 @@ export default function RootLayout() {
     })();
   }, []);
 
+  useEffect(() => {
+    async function checkForUpdates() {
+      try {
+        if (__DEV__) {
+          return; // Skip updates in development
+        }
+
+        const update = await Updates.checkForUpdateAsync();
+        if (update.isAvailable) {
+          await Updates.fetchUpdateAsync();
+          Alert.alert(
+            "Update Available",
+            "App will restart to apply updates.",
+            [
+              {
+                text: "Update",
+                onPress: () => Updates.reloadAsync(),
+              },
+            ],
+          );
+        }
+      } catch (error) {
+        console.log("Error checking for updates:", error);
+      }
+    }
+
+    checkForUpdates();
+  }, []);
+
   if (!ready) return null; // or splash screen
 
   return (
     <ActionSheetProvider>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="modal"
-            options={{ presentation: "modal", title: "Modal" }}
-          />
-        </Stack>
-        <StatusBar style="auto" />
+        <ProductProvider>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="modal"
+              options={{ presentation: "modal", title: "Modal" }}
+            />
+          </Stack>
+          <StatusBar style="auto" />
+        </ProductProvider>
       </ThemeProvider>
     </ActionSheetProvider>
   );

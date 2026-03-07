@@ -32,7 +32,6 @@ export function ProductModal({
   const [stock, setStock] = useState("");
   const [addStock, setAddStock] = useState("");
   const [categoryId, setCategoryId] = useState<number | null>(null);
-
   useEffect(() => {
     if (product) {
       setName(product.name);
@@ -139,6 +138,16 @@ export function ProductModal({
             onChangeText={setPrice}
           />
           <ThemedText style={{ marginBottom: 2, marginTop: 10 }}>
+            Current Stock
+          </ThemedText>
+          <ThemedInput
+            readOnly
+            placeholder="Unit Price"
+            keyboardType="numeric"
+            value={stock}
+            onChangeText={setPrice}
+          />
+          <ThemedText style={{ marginBottom: 2, marginTop: 10 }}>
             {product ? "Additional Stock" : "Quantity"}
           </ThemedText>
           {product ? (
@@ -158,7 +167,9 @@ export function ProductModal({
           )}
           {product && (
             <UnitSelector
-              units={Array.from({ length: 11 }, (_, i) => String(i - 5))}
+              units={Array.from({ length: 11 }, (_, i) => String(i - 5)).filter(
+                (unit) => unit !== "0",
+              )}
               selectedUnit={addStock}
               onSelect={setAddStock}
             />
