@@ -57,6 +57,7 @@
       "eas": {
         "projectId": "a9265262-e943-423f-a656-2e4de3be9a0e"
       }
-    }
+    },
+    "platforms": ["android", "ios"]
   }
 }
