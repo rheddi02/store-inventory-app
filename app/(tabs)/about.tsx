@@ -38,28 +38,27 @@ export default function TabTwoScreen() {
       </ThemedText>
       <Collapsible title="Proprietor">
         <ThemedText>
-          <ThemedText type="defaultSemiBold">
-            Yhenna Mae Antonio Bayog
-          </ThemedText>
+          <ThemedText type="defaultSemiBold">Yhenna Mae A. Bayog</ThemedText>
         </ThemedText>
         <ThemedText>+63 935 811 4619</ThemedText>
+        <ThemedText type="description">
+          Bgy. Basud, Sto. Niño, Samar 6710
+        </ThemedText>
         <ExternalLink href="https://web.facebook.com/AYSIPPOP/">
           <ThemedText type="link">FB Page</ThemedText>
         </ExternalLink>
       </Collapsible>
-      <Collapsible title="Android App">
+      <Collapsible title="A&Y Sippop App">
         <ExternalLink href="https://drive.google.com/file/d/1ibrL80itd7i-jN94OePsPDiQjxL8CEeX/view?usp=sharing">
-          <ThemedText type="link">APK File</ThemedText>
+          <ThemedText type="default">Android APK File: </ThemedText>
+          <ThemedText type="link">Google Drive</ThemedText>
         </ExternalLink>
       </Collapsible>
       <Collapsible title="Images">
         <Image
-          source={require("@/assets/images/react-logo.png")}
-          style={{ width: 100, height: 100, alignSelf: "center" }}
+          source={require("@/assets/images/sippop-store.webp")}
+          style={{ width: 100, height: 100 }}
         />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
       </Collapsible>
     </ParallaxScrollView>
   );

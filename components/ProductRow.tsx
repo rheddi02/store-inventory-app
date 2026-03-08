@@ -95,7 +95,7 @@ export function ProductRow({
           flexDirection: "row",
           paddingVertical: 15,
           borderTopWidth: 1,
-          borderTopColor: Colors[theme].tint,
+          borderTopColor: Colors[theme].tinted,
         }}
       >
         <ThemedText

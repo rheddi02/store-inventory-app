@@ -6,6 +6,8 @@ import { ThemedView } from "./themed-view";
 
 export function ProductHistoryRow({ productHistory }: { productHistory: any }) {
   const theme = useColorScheme() ?? "light";
+  const changeValue = Number(productHistory.change);
+  const changeColor = changeValue < 0 ? "#FF3B30" : "#34C759"; // Red for negative, green for positive
 
   return (
     <ThemedView
@@ -22,7 +24,7 @@ export function ProductHistoryRow({ productHistory }: { productHistory: any }) {
       <ThemedText style={{ flex: 1, textAlign: "center" }}>
         {productHistory.previousStock} {productHistory.unit}
       </ThemedText>
-      <ThemedText style={{ flex: 1, textAlign: "center" }}>
+      <ThemedText style={{ flex: 1, textAlign: "center", color: changeColor }}>
         {productHistory.change}
       </ThemedText>
       <ThemedText style={{ flex: 1, textAlign: "center" }}>

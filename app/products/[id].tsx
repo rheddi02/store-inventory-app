@@ -1,7 +1,9 @@
 import { ProductHistoryRow } from "@/components/ProductHistoryRow";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { useProduct } from "@/context/ProductContext";
 import { getProductById, getStockHistory } from "@/db";
+import { useFocusEffect } from "@react-navigation/native";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -26,6 +28,7 @@ export default function ProductDetails() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const productId = Number(id);
   const [refreshing, setRefreshing] = useState(false);
+  const { setSelectedProduct } = useProduct();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [productHistory, setProductHistory] = useState<any | null>(null);
@@ -52,7 +55,16 @@ export default function ProductDetails() {
     loadProduct();
   }, [productId]);
 
-  if (!product) return <ThemedText>Loading...</ThemedText>; 
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        // Clear selected product when leaving this screen
+        setSelectedProduct(null);
+      };
+    }, [setSelectedProduct]),
+  );
+
+  if (!product) return <ThemedText>Loading...</ThemedText>;
 
   return (
     <>
@@ -101,11 +113,16 @@ export default function ProductDetails() {
                 <ThemedText type="title">{product.unitPrice}</ThemedText>
               </ThemedView>
             </View>
-            <View>
+            <View
+              style={{
+                flex: 1,
+              }}
+            >
               <ThemedText>Product History:</ThemedText>
               <FlatList
                 data={productHistory}
                 keyExtractor={(item, index) => index.toString()}
+                contentContainerStyle={{ paddingBottom: 20 }}
                 refreshControl={
                   <RefreshControl
                     refreshing={refreshing}
