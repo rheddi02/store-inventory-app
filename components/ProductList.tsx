@@ -1,6 +1,5 @@
 import { useProduct } from "@/context/ProductContext";
 import { deleteProduct, getProducts } from "@/db";
-import { Product } from "@/utils/types";
 import { router } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, Animated, FlatList, RefreshControl } from "react-native";
@@ -19,11 +18,11 @@ export default function ProductList({
   setModalVisible,
   // reloadTrigger,
 }: Props) {
-  const { setSelectedProduct } = useProduct();
+  const { setSelectedProduct, setProducts, products } = useProduct();
   const slideAnim = useRef(new Animated.Value(-300)).current; // start offscreen left
 
   const [refreshing, setRefreshing] = useState(false);
-  const [products, setProducts] = useState<Product[]>([]);
+  // const [products, setProducts] = useState<Product[]>([]);
 
   const { reloadTrigger } = useProduct();
 

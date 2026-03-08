@@ -27,18 +27,11 @@ export function ProductRow({
   const {
     isQuickEdit,
     selectedProduct,
-    setIsQuickEdit,
-    setSelectedProduct,
-    setReloadTrigger,
-    reloadTrigger,
+    handleSelectedProduct,
+    handleQuickProductUpdate,
   } = useProduct();
 
-  const onQuickEdit = () => {
-    setSelectedProduct(product);
-    setIsQuickEdit(!isQuickEdit);
-  };
-
-  const quickUpdate = async (stock: string) => {
+  const handleProductQuantity = async (stock: string) => {
     if (!selectedProduct) return;
     const totalStock =
       Number(selectedProduct.stock) + (stock ? Number(stock) : 0);
@@ -46,9 +39,8 @@ export function ProductRow({
     if (totalStock !== selectedProduct.stock) {
       await updateProductStock(selectedProduct.id, totalStock, "adjustment");
     }
-    setReloadTrigger(reloadTrigger + 1);
-    setSelectedProduct(null);
-    setIsQuickEdit(false);
+    handleQuickProductUpdate(product.id, totalStock);
+    handleSelectedProduct(null);
   };
 
   const onPress = () => {
@@ -71,7 +63,10 @@ export function ProductRow({
   };
 
   return (
-    <Pressable onPress={onQuickEdit} onLongPress={onPress}>
+    <Pressable
+      onPress={() => handleSelectedProduct(product)}
+      onLongPress={onPress}
+    >
       <ThemedView
         style={{
           flexDirection: "row",
@@ -80,7 +75,16 @@ export function ProductRow({
           borderTopColor: Colors[theme].tint,
         }}
       >
-        <ThemedText style={{ flex: 2 }}>{product.name}</ThemedText>
+        <ThemedText
+          style={[
+            product?.id === selectedProduct?.id && { fontWeight: 900 },
+            product?.id !== selectedProduct?.id &&
+              !!selectedProduct?.id && { color: "gray" },
+            { flex: 2 },
+          ]}
+        >
+          {product.name}
+        </ThemedText>
         <ThemedText style={{ flex: 1, textAlign: "center" }}>
           {product.stock} {product.unit}
         </ThemedText>
@@ -90,7 +94,7 @@ export function ProductRow({
           units={Array.from({ length: 7 }, (_, i) => String(i - 3)).filter(
             (unit) => unit !== "0",
           )}
-          onSelect={quickUpdate}
+          onSelect={handleProductQuantity}
         />
       )}
     </Pressable>

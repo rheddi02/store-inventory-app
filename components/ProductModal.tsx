@@ -137,16 +137,20 @@ export function ProductModal({
             value={price}
             onChangeText={setPrice}
           />
-          <ThemedText style={{ marginBottom: 2, marginTop: 10 }}>
-            Current Stock
-          </ThemedText>
-          <ThemedInput
-            readOnly
-            placeholder="Unit Price"
-            keyboardType="numeric"
-            value={stock}
-            onChangeText={setPrice}
-          />
+          {product && (
+            <>
+              <ThemedText style={{ marginBottom: 2, marginTop: 10 }}>
+                Current Stock
+              </ThemedText>
+              <ThemedInput
+                readOnly
+                placeholder="Unit Price"
+                keyboardType="numeric"
+                value={stock}
+                onChangeText={setStock}
+              />
+            </>
+          )}
           <ThemedText style={{ marginBottom: 2, marginTop: 10 }}>
             {product ? "Additional Stock" : "Quantity"}
           </ThemedText>

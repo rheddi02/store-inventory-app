@@ -6,8 +6,14 @@ type ProductContextType = {
   setIsQuickEdit: (edit: boolean) => void;
   selectedProduct: Product | null;
   setSelectedProduct: (product: Product | null) => void;
-  setReloadTrigger: (i: ProductContextType['reloadTrigger']) => void
-  reloadTrigger: number
+  handleSelectedProduct: (
+    product: ProductContextType["selectedProduct"],
+  ) => void;
+  setReloadTrigger: (i: ProductContextType["reloadTrigger"]) => void;
+  reloadTrigger: number;
+  products: Product[];
+  setProducts: (products: ProductContextType["products"]) => void;
+  handleQuickProductUpdate: (id: number, stock: number) => void;
 };
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -16,6 +22,29 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isQuickEdit, setIsQuickEdit] = useState(false);
   const [reloadTrigger, setReloadTrigger] = useState<number>(0);
+  const [products, setProducts] = useState<Product[]>([]);
+
+  const handleSelectedProduct = (product: Product | null) => {
+    if (product?.id === selectedProduct?.id || !product) {
+      setIsQuickEdit(false);
+      setSelectedProduct(null);
+      return;
+    }
+    setSelectedProduct(product);
+    setIsQuickEdit(true);
+  };
+
+  const handleQuickProductUpdate = (id: number, stock: number) => {
+    const updatedProducts = products.map((product) => {
+      if (product.id === id)
+        return {
+          ...product,
+          stock,
+        };
+      return product;
+    });
+    setProducts(updatedProducts);
+  };
 
   return (
     <ProductContext.Provider
@@ -25,7 +54,11 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         selectedProduct,
         setSelectedProduct,
         setReloadTrigger,
-        reloadTrigger
+        reloadTrigger,
+        handleSelectedProduct,
+        setProducts,
+        products,
+        handleQuickProductUpdate,
       }}
     >
       {children}
