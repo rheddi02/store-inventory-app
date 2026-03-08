@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Modal } from "react-native";
 
 import { addProduct, updateProduct, updateProductStock } from "@/db";
@@ -32,6 +32,8 @@ export function ProductModal({
   const [stock, setStock] = useState("");
   const [addStock, setAddStock] = useState("");
   const [categoryId, setCategoryId] = useState<number | null>(null);
+  const nameRef = useRef<any>(null);
+
   useEffect(() => {
     if (product) {
       setName(product.name);
@@ -84,6 +86,15 @@ export function ProductModal({
     }
   }, [visible, product, activeCategory]);
 
+  useEffect(() => {
+    if (visible && nameRef.current) {
+      const timer = setTimeout(() => {
+        nameRef.current?.focus();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [visible]);
+
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <ThemedView
@@ -110,7 +121,12 @@ export function ProductModal({
           <ThemedText style={{ marginBottom: 2, marginTop: 10 }}>
             Name
           </ThemedText>
-          <ThemedInput placeholder="Name" value={name} onChangeText={setName} />
+          <ThemedInput
+            ref={nameRef}
+            placeholder="Name"
+            value={name}
+            onChangeText={setName}
+          />
           <ThemedText style={{ marginBottom: 2, marginTop: 10 }}>
             Unit
           </ThemedText>

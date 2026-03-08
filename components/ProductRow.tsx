@@ -4,19 +4,24 @@ import { updateProductQuantity, updateProductStock } from "@/db";
 import { useColorScheme } from "@/hooks/use-color-scheme.web";
 import { Product } from "@/utils/types";
 import { useActionSheet } from "@expo/react-native-action-sheet";
-import { Pressable } from "react-native";
+import { useEffect } from "react";
+import { FlatList, Pressable } from "react-native";
 import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
 import { UnitSelector } from "./unit-selector";
 
 export function ProductRow({
   product,
+  index,
+  flatListRef,
   onEdit,
   onDelete,
   onView,
   onLongPress,
 }: {
   product: Product;
+  index: number;
+  flatListRef: React.RefObject<FlatList<Product> | null>;
   onEdit: (product: Product) => void;
   onDelete: (product: Product) => void;
   onView: (product: Product) => void;
@@ -42,6 +47,24 @@ export function ProductRow({
     handleQuickProductUpdate(product.id, totalStock);
     handleSelectedProduct(null);
   };
+
+  useEffect(() => {
+    // Scroll to this item when UnitSelector appears
+    if (
+      isQuickEdit &&
+      selectedProduct?.id === product.id &&
+      flatListRef.current
+    ) {
+      const timer = setTimeout(() => {
+        flatListRef.current?.scrollToIndex({
+          index,
+          animated: true,
+          viewPosition: 0.5, // Center the item in the viewport
+        });
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isQuickEdit, selectedProduct?.id, product.id, index, flatListRef]);
 
   const onPress = () => {
     const options = ["View", "Edit", "Delete", "Cancel"];
@@ -90,12 +113,14 @@ export function ProductRow({
         </ThemedText>
       </ThemedView>
       {isQuickEdit && selectedProduct?.id === product.id && (
-        <UnitSelector
-          units={Array.from({ length: 7 }, (_, i) => String(i - 3)).filter(
-            (unit) => unit !== "0",
-          )}
-          onSelect={handleProductQuantity}
-        />
+        <Pressable onPress={() => {}}>
+          <UnitSelector
+            units={Array.from({ length: 21 }, (_, i) => String(i - 10)).filter(
+              (unit) => unit !== "0",
+            )}
+            onSelect={handleProductQuantity}
+          />
+        </Pressable>
       )}
     </Pressable>
   );

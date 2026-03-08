@@ -19,6 +19,12 @@ export default function HomeScreen() {
     const data = await getCategories();
     setCategories(data);
   };
+  const { setSelectedProduct } = useProduct();
+
+  const handleSaved = () => {
+    setReloadTrigger(reloadTrigger + 1);
+    setSelectedProduct(null);
+  };
 
   useEffect(() => {
     (async () => {
@@ -56,7 +62,7 @@ export default function HomeScreen() {
         categories={categories}
         activeCategory={activeCategory}
         product={selectedProduct}
-        onSaved={() => setReloadTrigger(reloadTrigger + 1)}
+        onSaved={handleSaved}
       />
       <FloatingButton {...{ setModalVisible }} />
     </ThemedView>

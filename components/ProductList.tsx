@@ -1,5 +1,6 @@
 import { useProduct } from "@/context/ProductContext";
 import { deleteProduct, getProducts } from "@/db";
+import { Product } from "@/utils/types";
 import { router } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, Animated, FlatList, RefreshControl } from "react-native";
@@ -20,6 +21,7 @@ export default function ProductList({
 }: Props) {
   const { setSelectedProduct, setProducts, products } = useProduct();
   const slideAnim = useRef(new Animated.Value(-300)).current; // start offscreen left
+  const flatListRef = useRef<FlatList<Product>>(null);
 
   const [refreshing, setRefreshing] = useState(false);
   // const [products, setProducts] = useState<Product[]>([]);
@@ -87,6 +89,7 @@ export default function ProductList({
   return (
     <Animated.View style={{ transform: [{ translateX: slideAnim }] }}>
       <FlatList
+        ref={flatListRef}
         data={products ?? []}
         keyExtractor={(item, index) => index.toString()}
         refreshControl={
@@ -106,9 +109,11 @@ export default function ProductList({
             </ThemedText>
           </ThemedView>
         }
-        renderItem={({ item }) => (
+        renderItem={({ item, index }) => (
           <ProductRow
             product={item}
+            index={index}
+            flatListRef={flatListRef}
             onView={() => onView(item)}
             onEdit={() => onEdit(item)}
             onDelete={() => onDelete(item)}
