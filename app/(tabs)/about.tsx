@@ -1,24 +1,25 @@
 import { Image } from "expo-image";
-import { StyleSheet } from "react-native";
+import { Dimensions, StyleSheet } from "react-native";
 
 import { ExternalLink } from "@/components/external-link";
 import ParallaxScrollView from "@/components/parallax-scroll-view";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Collapsible } from "@/components/ui/collapsible";
-import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Fonts } from "@/constants/theme";
+const { width } = Dimensions.get("window");
 
 export default function TabTwoScreen() {
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: "#D0D0D0", dark: "#353636" }}
       headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
+        <Image
+          source={require("@/assets/images/sippop-store.webp")}
+          style={{
+            width: width,
+            height: 250,
+          }}
         />
       }
     >
@@ -29,11 +30,11 @@ export default function TabTwoScreen() {
             fontFamily: Fonts.rounded,
           }}
         >
-          A&Y Inventory App
+          A&Y Sippop Inventory App
         </ThemedText>
       </ThemedView>
       <ThemedText>
-        This app is only intended for A&Y Sippop snack hauz usage.
+        This app is intended for use by A&Y Sippop Snack Hauz only.
       </ThemedText>
       <Collapsible title="Proprietor">
         <ThemedText>
