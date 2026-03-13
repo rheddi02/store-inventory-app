@@ -4,11 +4,12 @@ import { updateProductQuantity, updateProductStock } from "@/db";
 import { useColorScheme } from "@/hooks/use-color-scheme.web";
 import { Product } from "@/utils/types";
 import { useActionSheet } from "@expo/react-native-action-sheet";
-import { useEffect } from "react";
-import { FlatList, Pressable } from "react-native";
+import { useEffect, useRef } from "react";
+import { FlatList, Pressable, StyleSheet, TouchableOpacity } from "react-native";
 import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
 import { UnitSelector } from "./unit-selector";
+import Swipeable, { SwipeableMethods } from "react-native-gesture-handler/ReanimatedSwipeable";
 
 export function ProductRow({
   product,
@@ -18,6 +19,7 @@ export function ProductRow({
   onDelete,
   onView,
   onLongPress,
+  onRowOpen
 }: {
   product: Product;
   index: number;
@@ -26,7 +28,9 @@ export function ProductRow({
   onDelete: (product: Product) => void;
   onView: (product: Product) => void;
   onLongPress: (product: Product) => void;
+  onRowOpen: (row: SwipeableMethods | null) => void
 }) {
+  const swipeRef = useRef<SwipeableMethods | null>(null)
   const { showActionSheetWithOptions } = useActionSheet();
   const theme = useColorScheme() ?? "light";
   const {
@@ -47,6 +51,16 @@ export function ProductRow({
     handleQuickProductUpdate(product.id, totalStock);
     handleSelectedProduct(null);
   };
+
+  const handleEdit = () => {
+    swipeRef.current?.close()    // close any open row first
+    onEdit(product)         // then run edit logic
+  }
+
+  const handleDelete = () => {
+    swipeRef.current?.close()     // close row before delete
+    onDelete(product)
+  }
 
   useEffect(() => {
     // Scroll to this item when UnitSelector appears
@@ -85,7 +99,36 @@ export function ProductRow({
     );
   };
 
+  const renderRightActions = () => (
+    <ThemedView style={styles.actions}>
+      <TouchableOpacity
+        style={[styles.button, styles.edit]}
+        onPress={handleEdit}
+      >
+        <ThemedText style={styles.text}>Edit</ThemedText>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.button, styles.delete]}
+        onPress={handleDelete}
+      >
+        <ThemedText style={styles.text}>Delete</ThemedText>
+      </TouchableOpacity>
+    </ThemedView>
+  );
+
+  const handleOpenRow = () => {
+    onRowOpen(swipeRef.current)
+  }
+
   return (
+    <Swipeable
+      ref={swipeRef}
+      friction={2}
+      rightThreshold={40}
+      renderRightActions={renderRightActions}
+      onSwipeableWillOpen={handleOpenRow}
+    >
     <Pressable
       onPress={() => handleSelectedProduct(product)}
       onLongPress={onPress}
@@ -123,5 +166,32 @@ export function ProductRow({
         </Pressable>
       )}
     </Pressable>
+    </Swipeable>
   );
 }
+const styles = StyleSheet.create({
+  row: {
+    backgroundColor: "white",
+    padding: 20,
+    borderBottomWidth: 1,
+    borderColor: "#eee",
+  },
+  actions: {
+    flexDirection: "row",
+  },
+  button: {
+    width: 80,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  edit: {
+    backgroundColor: "#f39c12",
+  },
+  delete: {
+    backgroundColor: "#e74c3c",
+  },
+  text: {
+    color: "white",
+    fontWeight: "bold",
+  },
+});

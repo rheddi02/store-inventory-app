@@ -7,7 +7,8 @@ import { Alert, Animated, FlatList, RefreshControl } from "react-native";
 import { ProductRow } from "./ProductRow";
 import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
-
+import { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable'
+import { useSwipeManager } from "@/hooks/use-swipe-manager";
 type Props = {
   categoryId: number;
   // reloadTrigger: number;
@@ -19,12 +20,13 @@ export default function ProductList({
   setModalVisible,
   // reloadTrigger,
 }: Props) {
+  const openRow = useRef<SwipeableMethods | null>(null)
   const { setSelectedProduct, setProducts, products } = useProduct();
   const slideAnim = useRef(new Animated.Value(-300)).current; // start offscreen left
   const flatListRef = useRef<FlatList<Product>>(null);
+  const { onRowOpen, closeOpenRow } = useSwipeManager()
 
   const [refreshing, setRefreshing] = useState(false);
-  // const [products, setProducts] = useState<Product[]>([]);
 
   const { reloadTrigger } = useProduct();
 
@@ -92,6 +94,7 @@ export default function ProductList({
         ref={flatListRef}
         data={products ?? []}
         keyExtractor={(item, index) => index.toString()}
+        onScrollBeginDrag={closeOpenRow}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
@@ -118,6 +121,7 @@ export default function ProductList({
             onEdit={() => onEdit(item)}
             onDelete={() => onDelete(item)}
             onLongPress={() => onEdit(item)}
+            onRowOpen={onRowOpen}
           />
         )}
       />

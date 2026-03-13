@@ -32,6 +32,10 @@ export default function HomeScreen() {
     })();
   }, []);
 
+  const handleCloseModal = () => {
+    setModalVisible(false)
+    setSelectedProduct(null);
+  }
   return (
     <ThemedView style={styles.container}>
       {/* Category Tabs */}
@@ -58,7 +62,7 @@ export default function HomeScreen() {
       {/* Modal */}
       <ProductModal
         visible={modalVisible}
-        onClose={() => setModalVisible(false)}
+        onClose={handleCloseModal}
         categories={categories}
         activeCategory={activeCategory}
         product={selectedProduct}

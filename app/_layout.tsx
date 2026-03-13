@@ -13,6 +13,7 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 import * as Updates from "expo-updates";
 import { useEffect, useState } from "react";
 import { Alert } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export const unstable_settings = {
   anchor: "(tabs)",
@@ -66,6 +67,7 @@ export default function RootLayout() {
   if (!ready) return null; // or splash screen
 
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <ActionSheetProvider>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <ProductProvider>
@@ -80,5 +82,6 @@ export default function RootLayout() {
         </ProductProvider>
       </ThemeProvider>
     </ActionSheetProvider>
+    </GestureHandlerRootView>
   );
 }

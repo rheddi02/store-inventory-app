@@ -18,8 +18,8 @@ export const FloatingButton = ({
       <View
         style={{
           position: "absolute",
-          bottom: 30,
-          right: 30,
+          bottom: 10,
+          right: 10,
           backgroundColor: "#007AFF",
           padding: 16,
           borderRadius: 50,
