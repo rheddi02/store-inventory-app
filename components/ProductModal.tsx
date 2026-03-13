@@ -87,7 +87,7 @@ export function ProductModal({
   }, [visible, product, activeCategory]);
 
   useEffect(() => {
-    if (visible && nameRef.current) {
+    if (!product && visible && nameRef.current) {
       const timer = setTimeout(() => {
         nameRef.current?.focus();
       }, 100);
